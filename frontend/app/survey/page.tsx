@@ -331,13 +331,17 @@ export default function SurveyPage() {
 
           console.log('Missions generated successfully:', missionsData);
           
-          // Redirect to dashboard
-          router.push('/');
+          // Clear loading state and redirect to dashboard
+          setLoadingMessage('');
+          setLoading(false);
+          router.push('/dashboard');
         } catch (missionErr: any) {
           clearInterval(messageInterval);
           console.error('Mission generation error:', missionErr);
           // Still redirect even if missions fail - they can be regenerated
-          router.push('/');
+          setLoadingMessage('');
+          setLoading(false);
+          router.push('/dashboard');
         }
       } catch (err: any) {
         console.error('Survey submission error:', err);
@@ -359,6 +363,42 @@ export default function SurveyPage() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--mint-bg)' }}>
+      {/* Loading Screen Overlay */}
+      {loading && loadingMessage && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backgroundColor: 'var(--mint-bg)' }}
+        >
+          <div className="text-center">
+            {/* Animated spinner */}
+            <div className="mb-8 flex justify-center">
+              <div 
+                className="w-16 h-16 rounded-full border-4 border-t-transparent animate-spin"
+                style={{ 
+                  borderColor: 'var(--fresh-green)',
+                  borderTopColor: 'transparent'
+                }}
+              />
+            </div>
+            
+            {/* Loading message */}
+            <h2 
+              className="text-2xl font-bold mb-4 transition-all duration-500"
+              style={{ color: 'var(--forest-text)' }}
+            >
+              {loadingMessage}
+            </h2>
+            
+            <p 
+              className="text-sm"
+              style={{ color: 'var(--sage-muted)' }}
+            >
+              This may take a few seconds...
+            </p>
+          </div>
+        </div>
+      )}
+    
       {/* Progress Bar */}
       <div className="w-full h-2 bg-white/30">
         <div
