@@ -31,6 +31,7 @@ interface UserStats {
     stage: number;
     type: string;
     stage_name: string;
+    xp_to_next_stage: number;
   };
   impact: {
     total_co2_saved: number;
@@ -56,6 +57,27 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  const fetchStats = async () => {
+    try {
+      const token = localStorage.getItem('supabase_token');
+      
+      if (!token) return;
+
+      const statsResponse = await fetch('http://localhost:8000/missions/stats', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json();
+        if (statsData.success && statsData.stats) {
+          setStats(statsData.stats);
+        }
+      }
+    } catch (err) {
+      console.error('Error refreshing stats:', err);
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -112,7 +134,8 @@ export default function DashboardPage() {
         plant: {
           stage: 4,
           type: 'oak',
-          stage_name: 'Young Tree'
+          stage_name: 'Young Tree',
+          xp_to_next_stage: 320
         },
         impact: {
           total_co2_saved: 127.5,
@@ -196,7 +219,7 @@ export default function DashboardPage() {
           <PlantVisualization 
             stageName={stats.plant.stage_name}
             stage={stats.plant.stage}
-            xpToNextStage={320}
+            xpToNextStage={stats.plant.xp_to_next_stage}
           />
         )}
 
@@ -270,7 +293,7 @@ export default function DashboardPage() {
       </main>
 
       {/* Right Sidebar */}
-      <RightSidebar />
+      <RightSidebar onActivitySubmitted={fetchStats} />
     </div>
   );
 }

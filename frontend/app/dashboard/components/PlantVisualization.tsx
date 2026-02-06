@@ -62,15 +62,6 @@ export default function PlantVisualization({ stageName, stage, xpToNextStage }: 
         >
           🎨 Customize
         </button>
-        <button
-          className="px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 hover:scale-105"
-          style={{
-            backgroundColor: '#F3E5F5',
-            color: '#7B1FA2',
-          }}
-        >
-          📊 Stats
-        </button>
       </div>
     </div>
   );

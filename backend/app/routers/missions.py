@@ -215,7 +215,8 @@ async def get_user_stats(authorization: str = Header(None)):
                     "plant": {
                         "stage": 1,
                         "type": "oak",
-                        "stage_name": "Seed"
+                        "stage_name": "Seed",
+                        "xp_to_next_stage": 300
                     },
                     "impact": {
                         "total_co2_saved": 0.0,
@@ -256,6 +257,32 @@ async def get_user_stats(authorization: str = Header(None)):
             7: "Forest Guardian"
         }
         
+        # Calculate XP needed for next plant stage
+        current_level = profile.get("current_level", 1)
+        current_plant_stage = profile.get("plant_stage", 1)
+        total_xp = profile.get("total_xp", 0)
+        
+        # Level thresholds for plant stages
+        plant_stage_levels = {
+            1: 2,   # Stage 1 ends at level 2
+            2: 4,   # Stage 2 ends at level 4
+            3: 7,   # Stage 3 ends at level 7
+            4: 10,  # Stage 4 ends at level 10
+            5: 15,  # Stage 5 ends at level 15
+            6: 20,  # Stage 6 ends at level 20
+            7: 999  # Stage 7 is max
+        }
+        
+        # Find next plant stage level
+        next_stage_level = plant_stage_levels.get(current_plant_stage, 999)
+        
+        # Calculate total XP needed for next stage
+        xp_for_next_stage_level = 0
+        for lvl in range(2, next_stage_level + 2):  # +2 to go to next stage
+            xp_for_next_stage_level += lvl * 100
+        
+        xp_to_next_plant_stage = max(0, xp_for_next_stage_level - total_xp)
+        
         return {
             "success": True,
             "stats": {
@@ -269,7 +296,8 @@ async def get_user_stats(authorization: str = Header(None)):
                 "plant": {
                     "stage": profile.get("plant_stage", 1),
                     "type": profile.get("plant_type", "oak"),
-                    "stage_name": plant_stage_names.get(profile.get("plant_stage", 1), "Seed")
+                    "stage_name": plant_stage_names.get(profile.get("plant_stage", 1), "Seed"),
+                    "xp_to_next_stage": xp_to_next_plant_stage
                 },
                 "impact": {
                     "total_co2_saved": profile.get("total_co2_saved", 0.0),
