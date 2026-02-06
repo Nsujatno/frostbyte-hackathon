@@ -242,6 +242,8 @@ export default function SurveyPage() {
   const router = useRouter();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   // Filter out conditional questions
   const activeQuestions = surveyQuestions.filter((q) => {
@@ -258,15 +260,47 @@ export default function SurveyPage() {
     setAnswers({ ...answers, [currentQuestion.key]: value });
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentQuestionIndex < activeQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      // Survey complete - log to console
-      console.log('Survey Answers:', answers);
-      
-      // Redirect to home or dashboard
-      router.push('/');
+      // Survey complete - submit to backend
+      setLoading(true);
+      setError('');
+
+      try {
+        const token = localStorage.getItem('supabase_token');
+        
+        if (!token) {
+          setError('Authentication token not found. Please log in again.');
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch('http://localhost:8000/survey/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(answers),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.detail || 'Failed to submit survey');
+        }
+
+        console.log('Survey submitted successfully:', data);
+        
+        // Redirect to home or dashboard
+        router.push('/');
+      } catch (err: any) {
+        console.error('Survey submission error:', err);
+        setError(err.message || 'Failed to submit survey. Please try again.');
+        setLoading(false);
+      }
     }
   };
 
@@ -662,6 +696,18 @@ export default function SurveyPage() {
 
           {/* Navigation Buttons */}
           <div className="flex gap-4">
+            {/* Error Message */}
+            {error && (
+              <div className="w-full p-3 mb-4 rounded-lg text-sm" style={{ 
+                backgroundColor: 'rgba(239, 68, 68, 0.1)', 
+                color: 'rgb(239, 68, 68)',
+                border: '1px solid rgba(239, 68, 68, 0.3)'
+              }}>
+                {error}
+              </div>
+            )}
+
+            {/* Back Button */}
             {currentQuestionIndex > 0 && (
               <button
                 onClick={handleBack}
@@ -671,37 +717,50 @@ export default function SurveyPage() {
                   color: 'var(--sage-muted)',
                   border: '2px solid var(--input-border)',
                 }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(146, 160, 142, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
               >
                 Back
               </button>
             )}
+
+            {/* Next/Submit Button */}
             <button
               onClick={handleNext}
-              disabled={!isAnswered}
+              disabled={!isAnswered || loading}
               className="flex-1 py-3 rounded-xl font-semibold transition-all duration-200"
               style={{
-                backgroundColor: isAnswered ? 'var(--button-green)' : 'var(--sage-muted)',
+                backgroundColor: (isAnswered && !loading) ? 'var(--button-green)' : 'var(--sage-muted)',
                 color: 'white',
                 boxShadow: '0 2px 8px rgba(46, 93, 63, 0.2)',
-                opacity: isAnswered ? 1 : 0.5,
-                cursor: isAnswered ? 'pointer' : 'not-allowed',
+                opacity: (isAnswered && !loading) ? 1 : 0.5,
+                cursor: (isAnswered && !loading) ? 'pointer' : 'not-allowed',
               }}
               onMouseEnter={(e) => {
-                if (isAnswered) {
+                if (isAnswered && !loading) {
                   e.currentTarget.style.backgroundColor = 'var(--button-hover)';
                   e.currentTarget.style.transform = 'translateY(-2px)';
                   e.currentTarget.style.boxShadow = '0 4px 12px rgba(31, 58, 46, 0.25)';
                 }
               }}
               onMouseLeave={(e) => {
-                if (isAnswered) {
+                if (isAnswered && !loading) {
                   e.currentTarget.style.backgroundColor = 'var(--button-green)';
                   e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.boxShadow = '0 2px 8px rgba(46, 93, 63, 0.2)';
                 }
               }}
             >
-              {currentQuestionIndex < activeQuestions.length - 1 ? 'Next' : 'Complete Survey'}
+              {loading 
+                ? 'Submitting...' 
+                : currentQuestionIndex < activeQuestions.length - 1 
+                  ? 'Next' 
+                  : 'Complete Survey'
+              }
             </button>
           </div>
         </div>
