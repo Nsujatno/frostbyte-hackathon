@@ -41,8 +41,8 @@ export default function SignupPage() {
       }
 
       if (data.user) {
-        // Redirect to dashboard or home after successful signup
-        router.push('/');
+        // Redirect to survey after successful signup
+        router.push('/survey');
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');

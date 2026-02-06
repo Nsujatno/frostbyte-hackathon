@@ -30,8 +30,8 @@ export default function LoginPage() {
       }
 
       if (data.user) {
-        // Redirect to dashboard or home after successful login
-        router.push('/');
+        // Redirect to survey after successful login
+        router.push('/survey');
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
