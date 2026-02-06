@@ -4,6 +4,8 @@ from functools import lru_cache
 class Settings(BaseSettings):
     supabase_url: str
     supabase_key: str
+    google_api_key: str
+    climatiq_api_key: str
 
     model_config = SettingsConfigDict(env_file=".env")
 

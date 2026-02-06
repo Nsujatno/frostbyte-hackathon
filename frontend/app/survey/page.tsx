@@ -243,6 +243,7 @@ export default function SurveyPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
   const [error, setError] = useState('');
 
   // Filter out conditional questions
@@ -294,8 +295,50 @@ export default function SurveyPage() {
 
         console.log('Survey submitted successfully:', data);
         
-        // Redirect to home or dashboard
-        router.push('/');
+        // Step 2: Generate missions with loading messages
+        const loadingMessages = [
+          'Analyzing your lifestyle...',
+          'Calculating your carbon footprint...',
+          'Finding your biggest opportunities...',
+          'Generating personalized missions...',
+          'Almost there...'
+        ];
+        
+        let messageIndex = 0;
+        setLoadingMessage(loadingMessages[0]);
+        
+        const messageInterval = setInterval(() => {
+          messageIndex = (messageIndex + 1) % loadingMessages.length;
+          setLoadingMessage(loadingMessages[messageIndex]);
+        }, 2000);
+        
+        try {
+          const missionsResponse = await fetch('http://localhost:8000/missions/generate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+
+          const missionsData = await missionsResponse.json();
+
+          clearInterval(messageInterval);
+
+          if (!missionsResponse.ok) {
+            throw new Error(missionsData.detail || 'Failed to generate missions');
+          }
+
+          console.log('Missions generated successfully:', missionsData);
+          
+          // Redirect to dashboard
+          router.push('/');
+        } catch (missionErr: any) {
+          clearInterval(messageInterval);
+          console.error('Mission generation error:', missionErr);
+          // Still redirect even if missions fail - they can be regenerated
+          router.push('/');
+        }
       } catch (err: any) {
         console.error('Survey submission error:', err);
         setError(err.message || 'Failed to submit survey. Please try again.');
