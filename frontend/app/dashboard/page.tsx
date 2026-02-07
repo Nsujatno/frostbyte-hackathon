@@ -94,6 +94,7 @@ export default function DashboardPage() {
         const data = await response.json();
         if (data.success && data.missions) {
           const sortedMissions = data.missions
+            .filter((m: Mission) => m.status === 'available') // Only show active missions on dashboard
             .sort((a: Mission, b: Mission) => b.xp_reward - a.xp_reward)
             .slice(0, 5);
           setMissions(sortedMissions);
@@ -142,6 +143,7 @@ export default function DashboardPage() {
       
       if (missionsData.success && missionsData.missions) {
         const sortedMissions = missionsData.missions
+          .filter((m: Mission) => m.status === 'available') // Only show active missions on dashboard
           .sort((a: Mission, b: Mission) => b.xp_reward - a.xp_reward)
           .slice(0, 5);
         setMissions(sortedMissions);
