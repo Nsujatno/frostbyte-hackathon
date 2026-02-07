@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from './components/Sidebar';
 import XPProgressBar from './components/XPProgressBar';
 import PlantVisualization from './components/PlantVisualization';
 import MissionCard from './components/MissionCard';
-import RightSidebar from './components/RightSidebar';
+import RightSidebar, { RightSidebarRef } from './components/RightSidebar';
 
 interface Mission {
   id: string;
@@ -53,6 +53,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const rightSidebarRef = useRef<RightSidebarRef>(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -76,6 +77,40 @@ export default function DashboardPage() {
       }
     } catch (err) {
       console.error('Error refreshing stats:', err);
+    }
+  };
+
+  const fetchMissions = async () => {
+    try {
+      const token = localStorage.getItem('supabase_token');
+      
+      if (!token) return;
+
+      const response = await fetch('http://localhost:8000/missions/', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.missions) {
+          const sortedMissions = data.missions
+            .sort((a: Mission, b: Mission) => b.xp_reward - a.xp_reward)
+            .slice(0, 5);
+          setMissions(sortedMissions);
+        }
+      }
+    } catch (err) {
+      console.error('Error refreshing missions:', err);
+    }
+  };
+
+  const handleMissionComplete = async () => {
+    // Refresh stats, missions, and activity feed after completion
+    await Promise.all([fetchStats(), fetchMissions()]);
+    
+    // Refresh activity feed in sidebar
+    if (rightSidebarRef.current) {
+      rightSidebarRef.current.refreshActivities();
     }
   };
 
@@ -268,6 +303,7 @@ export default function DashboardPage() {
               {missions.map((mission) => (
                 <MissionCard
                   key={mission.id}
+                  id={mission.id}
                   title={mission.title}
                   description={mission.description}
                   category={mission.category}
@@ -275,6 +311,7 @@ export default function DashboardPage() {
                   co2SavedKg={mission.co2_saved_kg}
                   moneySaved={mission.money_saved}
                   status={mission.status}
+                  onComplete={handleMissionComplete}
                 />
               ))}
             </div>
@@ -293,7 +330,7 @@ export default function DashboardPage() {
       </main>
 
       {/* Right Sidebar */}
-      <RightSidebar onActivitySubmitted={fetchStats} />
+      <RightSidebar ref={rightSidebarRef} onActivitySubmitted={fetchStats} />
     </div>
   );
 }

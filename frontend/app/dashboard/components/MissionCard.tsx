@@ -1,6 +1,9 @@
 'use client';
 
+import { useState } from 'react';
+
 interface MissionCardProps {
+  id: string;
   title: string;
   description: string;
   category: string;
@@ -8,17 +11,67 @@ interface MissionCardProps {
   co2SavedKg?: number;
   moneySaved?: number;
   status?: string;
+  onComplete?: () => void;
 }
 
 export default function MissionCard({
+  id,
   title,
   description,
   category,
   xpReward,
   co2SavedKg,
   moneySaved,
-  status = 'available'
+  status = 'available',
+  onComplete
 }: MissionCardProps) {
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleCompleteMission = async () => {
+    if (isCompleting || status === 'completed') return;
+
+    setIsCompleting(true);
+    setError('');
+
+    try {
+      const token = localStorage.getItem('supabase_token');
+      
+      if (!token) {
+        setError('Please log in to complete missions');
+        setIsCompleting(false);
+        return;
+      }
+
+      const response = await fetch('http://localhost:8000/activities/complete-mission', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ mission_id: id }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Reset loading state
+        setIsCompleting(false);
+        
+        // Trigger parent refresh
+        if (onComplete) {
+          onComplete();
+        }
+      } else {
+        setError(data.detail || 'Failed to complete mission');
+        setIsCompleting(false);
+      }
+    } catch (err: any) {
+      console.error('Error completing mission:', err);
+      setError('Error completing mission. Please try again.');
+      setIsCompleting(false);
+    }
+  };
   const categoryEmojis: Record<string, string> = {
     transportation: '🚌',
     food: '🥗',
@@ -92,16 +145,24 @@ export default function MissionCard({
         )}
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="mb-3 p-2 rounded text-xs" style={{ backgroundColor: '#FEE', color: '#C00' }}>
+          {error}
+        </div>
+      )}
+
       {/* Action button */}
       <button
-        className="w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 hover:scale-[1.02]"
+        onClick={handleCompleteMission}
+        className="w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
         style={{
           backgroundColor: status === 'completed' ? '#E8E8E8' : '#4A7C59',
           color: status === 'completed' ? '#5A7A66' : '#FFFFFF',
         }}
-        disabled={status === 'completed'}
+        disabled={status === 'completed' || isCompleting}
       >
-        {status === 'completed' ? '✓ Completed' : 'Start Mission'}
+        {isCompleting ? 'Completing...' : status === 'completed' ? '✓ Completed' : 'Complete Mission'}
       </button>
     </div>
   );

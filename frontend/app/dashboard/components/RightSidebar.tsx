@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 
 interface Activity {
   id: string;
@@ -17,17 +17,17 @@ interface RightSidebarProps {
   onActivitySubmitted?: () => void;
 }
 
-export default function RightSidebar({ onActivitySubmitted }: RightSidebarProps) {
+export interface RightSidebarRef {
+  refreshActivities: () => void;
+}
+
+const RightSidebar = forwardRef<RightSidebarRef, RightSidebarProps>(({ onActivitySubmitted }, ref) => {
   const [activityInput, setActivityInput] = useState('');
   const [activities, setActivities] = useState<Activity[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-
-  useEffect(() => {
-    fetchActivities();
-  }, []);
 
   const fetchActivities = async () => {
     try {
@@ -55,6 +55,16 @@ export default function RightSidebar({ onActivitySubmitted }: RightSidebarProps)
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchActivities();
+  }, []);
+
+  // Expose fetchActivities to parent through ref
+  useImperativeHandle(ref, () => ({
+    refreshActivities: fetchActivities
+  }));
+
 
   const handleSubmitActivity = async () => {
     if (!activityInput.trim() || submitting) return;
@@ -258,4 +268,8 @@ export default function RightSidebar({ onActivitySubmitted }: RightSidebarProps)
       </div>
     </div>
   );
-}
+});
+
+RightSidebar.displayName = 'RightSidebar';
+
+export default RightSidebar;
