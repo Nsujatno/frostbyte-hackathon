@@ -31,7 +31,7 @@ export default function Sidebar({ activeRoute = 'dashboard', stats }: SidebarPro
     { icon: '🏠', label: 'Dashboard', route: 'dashboard' },
     { icon: '📊', label: 'Analytics', route: 'analytics' },
     { icon: '🎯', label: 'Missions', route: 'missions' },
-    { icon: '📸', label: 'Receipt Scanner', route: 'scanner' },
+    { icon: '📸', label: 'Receipt Scanner', route: 'receipt-scanner' },
     { icon: '🔮', label: 'Future Impact', route: 'impact' },
     { icon: '🏆', label: 'Achievements', route: 'achievements' },
     { icon: '👤', label: 'Profile', route: 'profile' },
@@ -84,7 +84,6 @@ export default function Sidebar({ activeRoute = 'dashboard', stats }: SidebarPro
       {/* Logo */}
       <div className="p-6">
         <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <span>🌱</span>
           <span>EcoQuest</span>
         </h1>
       </div>
