@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import example, survey, missions, activities, receipts
+from app.routers import example, survey, missions, activities, receipts, shopping
 
 app = FastAPI()
 
@@ -22,6 +22,7 @@ app.include_router(survey.router)
 app.include_router(missions.router)
 app.include_router(activities.router)
 app.include_router(receipts.router)
+app.include_router(shopping.router)
 
 @app.get("/")
 def read_root():

@@ -29,9 +29,9 @@ export default function Sidebar({ activeRoute = 'dashboard', stats }: SidebarPro
 
   const menuItems = [
     { icon: '🏠', label: 'Dashboard', route: 'dashboard' },
-    { icon: '📊', label: 'Analytics', route: 'analytics' },
     { icon: '🎯', label: 'Missions', route: 'missions' },
     { icon: '📸', label: 'Receipt Scanner', route: 'receipt-scanner' },
+    { icon: '🛒', label: 'Shopping Assistant', route: 'shopping-assistant' },
     { icon: '🔮', label: 'Future Impact', route: 'impact' },
     { icon: '🏆', label: 'Achievements', route: 'achievements' },
     { icon: '👤', label: 'Profile', route: 'profile' },
