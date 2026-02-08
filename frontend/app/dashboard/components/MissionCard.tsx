@@ -72,11 +72,34 @@ export default function MissionCard({
       setIsCompleting(false);
     }
   };
-  const categoryEmojis: Record<string, string> = {
-    transportation: '🚌',
-    food: '🥗',
-    energy: '⚡',
-    shopping: '🛍️',
+  const categoryImages: Record<string, string> = {
+    transportation: '/transportation.png',
+    food: '/food.png',
+    energy: '/energy.png',
+    shopping: '/shopping.png',
+  };
+
+  const categoryAttributions: Record<string, React.ReactNode> = {
+    transportation: (
+      <a href="https://www.flaticon.com/free-icons/car" title="car icons" target="_blank" rel="noopener noreferrer">
+        Car icons created by Konkapp - Flaticon
+      </a>
+    ),
+    food: (
+      <a href="https://www.flaticon.com/free-icons/food" title="food icons" target="_blank" rel="noopener noreferrer">
+        Food icons created by Freepik - Flaticon
+      </a>
+    ),
+    energy: (
+      <a href="https://www.flaticon.com/free-icons/save" title="save icons" target="_blank" rel="noopener noreferrer">
+        Save icons created by Freepik - Flaticon
+      </a>
+    ),
+    shopping: (
+      <a href="https://www.flaticon.com/free-icons/shopping-bag" title="shopping bag icons" target="_blank" rel="noopener noreferrer">
+        Shopping bag icons created by iconixar - Flaticon
+      </a>
+    ),
   };
 
   const categoryColors: Record<string, string> = {
@@ -101,7 +124,11 @@ export default function MissionCard({
             className="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
             style={{ backgroundColor: categoryColors[category] || '#F4F7F5' }}
           >
-            {categoryEmojis[category] || '🎯'}
+            <img 
+              src={categoryImages[category] || '/placeholder.png'} 
+              alt={`${category} icon`}
+              className="w-6 h-6 object-contain"
+            />
           </div>
           <div>
             <h4 className="font-bold text-sm" style={{ color: '#1F3A2E' }}>
@@ -164,6 +191,11 @@ export default function MissionCard({
       >
         {isCompleting ? 'Completing...' : status === 'completed' ? '✓ Completed' : 'Complete Mission'}
       </button>
+
+      {/* Icon Attribution */}
+      <div className="mt-2 text-xs text-center" style={{ color: '#9CA3AF' }}>
+        {categoryAttributions[category]}
+      </div>
     </div>
   );
 }

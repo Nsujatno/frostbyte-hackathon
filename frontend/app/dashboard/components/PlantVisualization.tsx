@@ -53,28 +53,6 @@ export default function PlantVisualization({ stageName, stage, xpToNextStage }: 
         </p>
       </div>
 
-      {/* Action buttons */}
-      <div className="flex gap-3 justify-center mb-4">
-        <button
-          className="px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 hover:scale-105"
-          style={{
-            backgroundColor: '#E1F5FE',
-            color: '#0277BD',
-          }}
-        >
-          💧 Water
-        </button>
-        <button
-          className="px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 hover:scale-105"
-          style={{
-            backgroundColor: '#FCE4EC',
-            color: '#C2185B',
-          }}
-        >
-          🎨 Customize
-        </button>
-      </div>
-
       {/* Attribution */}
       <div className="text-center">
         <p className="text-xs" style={{ color: '#9CA3AF' }}>
