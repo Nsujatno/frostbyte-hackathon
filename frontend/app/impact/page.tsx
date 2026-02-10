@@ -208,12 +208,12 @@ export default function ImpactPage() {
     },
   ] : [];
 
-  const COLORS = ['#FFBB28', '#FF8042', '#00C49F', '#0088FE'];
+  const COLORS = ['#2D6A4F', '#52B788', '#95D5B2', '#D4F58E'];
   const CATEGORY_COLORS: Record<string, string> = {
-    transportation: '#FF8042', // Orange
-    food: '#00C49F', // Green
-    shopping: '#FFBB28', // Yellow
-    energy: '#0088FE', // Blue
+    transportation: '#2D6A4F', // Medium forest - darkest
+    shopping: '#52B788', // Fresh green
+    food: '#95D5B2', // Sage green
+    energy: '#D4F58E', // Neon lime - lightest
   };
 
   if (loading) {
