@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+
 interface SidebarStats {
   co2Saved: number;
   xpEarned: number;
@@ -28,13 +29,13 @@ export default function Sidebar({ activeRoute = 'dashboard', stats }: SidebarPro
   };
 
   const menuItems = [
-    { icon: '🏠', label: 'Dashboard', route: 'dashboard' },
-    { icon: '🎯', label: 'Missions', route: 'missions' },
-    { icon: '📸', label: 'Receipt Scanner', route: 'receipt-scanner' },
-    { icon: '🛒', label: 'Shopping Assistant', route: 'shopping-assistant' },
-    { icon: '🔮', label: 'Future Impact', route: 'impact' },
-    { icon: '🏆', label: 'Achievements', route: 'achievements' },
-    { icon: '👤', label: 'Profile', route: 'profile' },
+    { label: 'Dashboard', route: 'dashboard' },
+    { label: 'Missions', route: 'missions' },
+    { label: 'Receipt Scanner', route: 'receipt-scanner' },
+    { label: 'Shopping Assistant', route: 'shopping-assistant' },
+    { label: 'Future Impact', route: 'impact' },
+    { label: 'Achievements', route: 'achievements' },
+    { label: 'Profile', route: 'profile' },
   ];
 
   // Use props data or fallback to placeholder values
@@ -110,7 +111,6 @@ export default function Sidebar({ activeRoute = 'dashboard', stats }: SidebarPro
               }
             }}
           >
-            <span className="text-xl">{item.icon}</span>
             <span className="font-semibold text-sm">{item.label}</span>
           </button>
         ))}

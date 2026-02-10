@@ -360,7 +360,7 @@ export default function ReceiptScannerPage() {
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto p-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Receipt Scanner</h1>
+          <h1 className="text-3xl font-bold text-[#1F3A2E] mb-2">Receipt Scanner</h1>
           <p className="text-gray-600 mb-8">
             Upload a receipt to see the carbon footprint of your purchases
           </p>
