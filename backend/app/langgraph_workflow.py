@@ -467,13 +467,18 @@ Generate 8-12 personalized missions as a JSON array. Each mission object should 
 {{
   "title": "...",
   "description": "...",
-  "category": "transportation|food|energy|shopping",
+  "category": "transportation|food|energy|shopping",  // CATEGORY = what area of life (transportation, food, etc)
   "co2_saved_kg": 0.0,
   "money_saved": 0.0,
   "xp_reward": 0,
   "tips": ["...", "...", "..."],
-  "mission_type": "one_time|repeatable|streak"
+  "mission_type": "one_time|repeatable|streak"  // MISSION_TYPE = how often user can do it (one_time, repeatable, streak). NOT the category!
 }}
+
+IMPORTANT: 
+- "category" must be one of: transportation, food, energy, shopping
+- "mission_type" must be one of: one_time, repeatable, streak
+- These are DIFFERENT fields! Do not confuse them!
 """
     
     try:
@@ -502,6 +507,21 @@ Generate 8-12 personalized missions as a JSON array. Each mission object should 
         # Validate missions
         if not isinstance(missions, list) or len(missions) < 8:
             raise ValueError("Invalid missions format or too few missions")
+        
+        # Validate and sanitize each mission
+        valid_mission_types = ["one_time", "repeatable", "streak"]
+        valid_categories = ["transportation", "food", "energy", "shopping"]
+        
+        for mission in missions:
+            # Ensure mission_type is valid (default to "one_time" if invalid)
+            if mission.get("mission_type") not in valid_mission_types:
+                print(f"Invalid mission_type '{mission.get('mission_type')}' for mission '{mission.get('title')}', defaulting to 'one_time'")
+                mission["mission_type"] = "one_time"
+            
+            # Ensure category is valid (default to first opportunity area if invalid)
+            if mission.get("category") not in valid_categories:
+                print(f"Invalid category '{mission.get('category')}' for mission '{mission.get('title')}', defaulting to '{state['opportunity_areas'][0]}'")
+                mission["category"] = state['opportunity_areas'][0] if state['opportunity_areas'] else "energy"
         
         state["missions"] = missions
         state["error"] = None
