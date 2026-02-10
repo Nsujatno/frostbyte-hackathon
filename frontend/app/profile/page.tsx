@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '../dashboard/components/Sidebar';
-import PlantVisualization from '../dashboard/components/PlantVisualization';
+
 
 interface UserStats {
   xp: {
@@ -143,8 +143,10 @@ export default function ProfilePage() {
           </div>
         )}
 
+
+
         {!loading && stats && (
-          <div className="max-w-5xl">
+          <div className="max-w-5xl mx-auto">
             {/* User Header */}
             <div className="mb-8">
               <h1 className="text-4xl font-bold mb-2" style={{ color: '#1F3A2E' }}>
@@ -160,46 +162,6 @@ export default function ProfilePage() {
                 >
                   Level {stats.xp.current_level}
                 </span>
-              </div>
-            </div>
-
-            {/* Plant Progress Card */}
-            <div 
-              className="p-6 rounded-xl mb-6"
-              style={{ 
-                backgroundColor: '#FFFFFF', 
-                border: '1px solid #E1E8E4',
-                background: 'linear-gradient(135deg, #FFFFFF 0%, #F4F7F5 100%)'
-              }}
-            >
-              <h2 className="text-xl font-bold mb-4" style={{ color: '#1F3A2E' }}>
-                Plant Growth Progress
-              </h2>
-              <div className="flex items-center gap-6">
-                <div className="flex-shrink-0">
-                  <PlantVisualization 
-                    stageName={stats.plant.stage_name}
-                    stage={stats.plant.stage}
-                    xpToNextStage={stats.plant.xp_to_next_stage}
-                  />
-                </div>
-                <div className="flex-1">
-                  <p className="text-2xl font-bold mb-2" style={{ color: '#1F3A2E' }}>
-                    {stats.plant.stage_name}
-                  </p>
-                  <p className="text-base mb-3" style={{ color: '#5A7A66' }}>
-                    {stats.plant.xp_to_next_stage} XP until next stage
-                  </p>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div 
-                      className="h-3 rounded-full transition-all duration-300"
-                      style={{ 
-                        backgroundColor: '#4A7C59',
-                        width: `${Math.min(100, ((stats.xp.total_xp / (stats.xp.total_xp + stats.plant.xp_to_next_stage)) * 100))}%`
-                      }}
-                    />
-                  </div>
-                </div>
               </div>
             </div>
 
