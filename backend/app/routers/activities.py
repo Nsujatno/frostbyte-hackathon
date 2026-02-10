@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from app.database import supabase
 from app.routers.survey import get_user_id_from_token
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -433,6 +433,42 @@ async def update_user_stats(user_id: str, xp: int, co2: float, missions: int, mo
         xp_to_next = next_level_threshold - new_total_xp
         
         # Update profile
+        
+        # Calculate streak
+        today = date.today()
+        last_activity_str = profile.get("last_activity_date")
+        current_streak = profile.get("current_streak_days", 0)
+        longest_streak = profile.get("longest_streak_days", 0)
+        
+        if last_activity_str:
+            try:
+                # Handle both "YYYY-MM-DD" and full ISO timestamps if legacy data exists
+                if "T" in last_activity_str:
+                    last_activity_date = datetime.fromisoformat(last_activity_str).date()
+                else:
+                    last_activity_date = date.fromisoformat(last_activity_str)
+                    
+                if last_activity_date == today:
+                    # Already active today, streak doesn't change
+                    pass
+                elif last_activity_date == today - timedelta(days=1):
+                    # Consecutive day, increment streak
+                    current_streak += 1
+                else:
+                    # Missed a day (or more), reset streak
+                    current_streak = 1
+            except ValueError:
+                # If date format is bad, reset streak
+                current_streak = 1
+        else:
+            # First activity
+            current_streak = 1
+            
+        # Update longest streak
+        if current_streak > longest_streak:
+            longest_streak = current_streak
+            
+        # Update profile
         update_data = {
             "total_xp": new_total_xp,
             "current_level": new_level,
@@ -441,7 +477,9 @@ async def update_user_stats(user_id: str, xp: int, co2: float, missions: int, mo
             "total_co2_saved": profile.get("total_co2_saved", 0) + co2,
             "total_missions_completed": profile.get("total_missions_completed", 0) + missions,
             "total_money_saved": profile.get("total_money_saved", 0) + money,
-            "last_activity_date": datetime.now().date().isoformat(),
+            "last_activity_date": today.isoformat(),
+            "current_streak_days": current_streak,
+            "longest_streak_days": longest_streak,
         }
         
         # Update plant stage if level increased
