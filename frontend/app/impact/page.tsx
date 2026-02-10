@@ -311,7 +311,7 @@ export default function ImpactPage() {
                   ref={shareCardRef}
                   data-share-card
                   style={{ WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', transform: 'translateZ(0)' }}
-                  className="bg-gradient-to-br from-[#1F3A2E] to-[#2d5241] p-6 rounded-2xl text-white w-full h-full relative overflow-hidden shadow-lg"
+                  className="bg-gradient-to-br from-[#2E5D3F] to-[#4A7C59] p-6 rounded-2xl text-white w-full h-full relative overflow-hidden shadow-lg"
                 >
                   <button
                     onClick={handleShare}
@@ -430,16 +430,22 @@ export default function ImpactPage() {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-              <div className="mt-8 bg-[#F0FDF4] border border-[#DCFCE7] rounded-lg p-4 flex items-center justify-between">
+              <div className="mt-8 bg-white border-y border-r border-gray-100 border-l-4 border-l-[#2E5D3F] rounded-r-xl shadow-sm p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <h4 className="font-bold text-[#166534]">Bridge the Gap!</h4>
-                  <p className="text-sm text-[#15803d] mt-1">If you complete your suggested missions, you could save an extra <span className="font-bold">{((data?.projections.best_case['1_year'] || 0) - (data?.projections.current_pace['1_year'] || 0)).toFixed(1)}kg</span> of CO2 this year.</p>
+                  <h4 className="font-bold text-lg text-[#2E5D3F]">Bridge the Gap!</h4>
+                  <p className="text-sm text-[#1F3A2E] mt-1">
+                    If you complete your suggested missions, you could save an extra{' '}
+                    <span className="inline-block bg-[#D4F58E] px-2 py-0.5 rounded text-[#1F3A2E] font-bold">
+                      {((data?.projections.best_case['1_year'] || 0) - (data?.projections.current_pace['1_year'] || 0)).toFixed(1)}kg
+                    </span>{' '}
+                    of CO2 this year.
+                  </p>
                 </div>
                 <button
                   onClick={() => router.push('/missions')}
-                  className="bg-[#166534] hover:bg-[#14532d] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                  className="bg-[#2E5D3F] hover:bg-[#1F3A2E] text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm shrink-0"
                 >
-                  View High-Impact Missions
+                  View Missions
                 </button>
               </div>
             </div>
@@ -468,7 +474,7 @@ export default function ImpactPage() {
               </div>
             </div>
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-              <div className="w-full h-102 bg-[#F0FDF4] rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+              <div className="w-full h-103 bg-[#F0FDF4] rounded-lg mb-4 flex items-center justify-center overflow-hidden">
                 <img src="/Taking care of the Earth-amico.svg" alt="Taking Care of Earth" className="h-full w-full object-contain" />
               </div>
               <h3 className="font-bold text-[#1F3A2E] mb-2">Global Impact</h3>

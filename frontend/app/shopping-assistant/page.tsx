@@ -171,7 +171,7 @@ export default function ShoppingAssistantPage() {
 
       <div className="flex-1 overflow-auto p-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">🛒 AI Shopping Assistant</h1>
+          <h1 className="text-3xl font-bold text-[#1F3A2E] mb-2">AI Shopping Assistant</h1>
           <p className="text-gray-600 mb-8">Get personalized sustainable shopping recommendations</p>
 
           {/* Input */}
