@@ -34,7 +34,6 @@ export default function Sidebar({ activeRoute = 'dashboard', stats }: SidebarPro
     { label: 'Receipt Scanner', route: 'receipt-scanner' },
     { label: 'Shopping Assistant', route: 'shopping-assistant' },
     { label: 'Future Impact', route: 'impact' },
-    { label: 'Achievements', route: 'achievements' },
     { label: 'Profile', route: 'profile' },
   ];
 
