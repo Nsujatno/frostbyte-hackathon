@@ -24,7 +24,7 @@ export default function ShoppingAssistantPage() {
   const router = useRouter();
   const [userInput, setUserInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [thinkingSteps, setThinkingSteps] = useState<string[]>([]);
+  const [thinkingStep, setThinkingStep] = useState<string>('');
   const [shoppingList, setShoppingList] = useState<ShoppingItem[]>([]);
   const [shoppingListId, setShoppingListId] = useState<string | null>(null);
   const [stats, setStats] = useState<UserStats | null>(null);
@@ -51,7 +51,7 @@ export default function ShoppingAssistantPage() {
     if (!userInput.trim() || isGenerating) return;
     
     setIsGenerating(true);
-    setThinkingSteps([]);
+    setThinkingStep('');
     setShoppingList([]);
     
     try {
@@ -84,7 +84,7 @@ export default function ShoppingAssistantPage() {
             const data = JSON.parse(line.slice(6));
 
             if (data.type === 'thinking') {
-              setThinkingSteps(prev => [...prev, data.thinking]);
+              setThinkingStep(data.thinking);
             } else if (data.type === 'complete') {
               setShoppingList(data.shopping_list);
             } else if (data.type === 'saved') {
@@ -198,18 +198,11 @@ export default function ShoppingAssistantPage() {
           </div>
 
           {/* Live Thinking */}
-          {thinkingSteps.length > 0 && (
+          {isGenerating && thinkingStep && (
             <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">🧠 Agent Thinking...</h2>
-              <div className="space-y-2">
-                {thinkingSteps.map((step, idx) => (
-                  <div key={idx} className="flex items-start gap-3 animate-fadeIn">
-                    <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                      {idx + 1}
-                    </div>
-                    <p className="text-gray-700 flex-1">{step}</p>
-                  </div>
-                ))}
+              <div className="flex items-center gap-3">
+                <div className="w-5 h-5 rounded-full bg-gradient-to-r from-emerald-400 to-blue-500 animate-pulse" />
+                <p className="text-gray-600 font-medium animate-pulse">{thinkingStep}</p>
               </div>
             </div>
           )}
@@ -265,7 +258,7 @@ export default function ShoppingAssistantPage() {
           )}
 
           {/* Empty State */}
-          {!isGenerating && thinkingSteps.length === 0 && (
+          {!isGenerating && shoppingList.length === 0 && (
             <div className="bg-white rounded-xl shadow-sm p-12 text-center">
               <div className="text-6xl mb-4">🤖</div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Ready to Shop Sustainably?</h3>
