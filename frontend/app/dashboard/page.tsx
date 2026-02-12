@@ -247,7 +247,7 @@ export default function DashboardPage() {
           <XPProgressBar 
             currentLevel={stats.xp.current_level}
             currentXP={stats.xp.xp_current_level}
-            requiredXP={stats.xp.xp_to_next_level}
+            requiredXP={stats.xp.xp_current_level + stats.xp.xp_to_next_level}
           />
         )}
 

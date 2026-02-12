@@ -4,6 +4,7 @@ from typing import Optional, List, Dict, Any
 from app.database import supabase
 from app.langgraph_workflow import mission_workflow, WorkflowState
 from app.routers.survey import get_user_id_from_token
+from app.game_mechanics import get_plant_stage, get_plant_stage_levels, get_level_threshold, calculate_level
 
 router = APIRouter(
     prefix="/missions",
@@ -235,10 +236,7 @@ async def get_user_stats(authorization: str = Header(None)):
         
         profile = profile_response.data[0]
         
-        # Calculate level progress percentage
-        xp_current = profile.get("xp_current_level", 0)
-        xp_needed = profile.get("xp_to_next_level", 100)
-        level_progress = round((xp_current / xp_needed) * 100) if xp_needed > 0 else 0
+
         
         # Calculate equivalents
         co2_saved = profile.get("total_co2_saved", 0.0)
@@ -257,46 +255,51 @@ async def get_user_stats(authorization: str = Header(None)):
             7: "Forest Guardian"
         }
         
-        # Calculate XP needed for next plant stage
-        current_level = profile.get("current_level", 1)
-        current_plant_stage = profile.get("plant_stage", 1)
+        # Calculate plant stage dynamically from level (Source of Truth)
         total_xp = profile.get("total_xp", 0)
         
+        # Recalculate level and XP progress from scratch to ensure consistency
+        current_level = calculate_level(total_xp)
+        level_threshold = get_level_threshold(current_level)
+        next_level_threshold = get_level_threshold(current_level + 1)
+        
+        xp_current_in_level = total_xp - level_threshold
+        xp_to_next_level = next_level_threshold - total_xp
+        level_progress_percent = int((xp_current_in_level / (next_level_threshold - level_threshold)) * 100) if (next_level_threshold - level_threshold) > 0 else 0
+
+        
+        # Force calculation of stage to fix any DB desync
+        current_plant_stage = get_plant_stage(current_level)
+        
         # Level thresholds for plant stages
-        plant_stage_levels = {
-            1: 2,   # Stage 1 ends at level 2
-            2: 4,   # Stage 2 ends at level 4
-            3: 7,   # Stage 3 ends at level 7
-            4: 10,  # Stage 4 ends at level 10
-            5: 15,  # Stage 5 ends at level 15
-            6: 20,  # Stage 6 ends at level 20
-            7: 999  # Stage 7 is max
-        }
+        plant_stage_levels = get_plant_stage_levels()
         
         # Find next plant stage level
-        next_stage_level = plant_stage_levels.get(current_plant_stage, 999)
+        # This returns the LAST level of the current stage
+        current_stage_end_level = plant_stage_levels.get(current_plant_stage, 999)
         
-        # Calculate total XP needed for next stage
-        xp_for_next_stage_level = 0
-        for lvl in range(2, next_stage_level + 2):  # +2 to go to next stage
-            xp_for_next_stage_level += lvl * 100
-        
-        xp_to_next_plant_stage = max(0, xp_for_next_stage_level - total_xp)
+        # Calculate total XP needed for next stage (which starts at end_level + 1)
+        if current_stage_end_level == 999:
+             xp_to_next_plant_stage = 0
+        else:
+             target_level = current_stage_end_level + 1
+             xp_needed_total = get_level_threshold(target_level)
+             xp_to_next_plant_stage = max(0, xp_needed_total - total_xp)
         
         return {
             "success": True,
             "stats": {
                 "xp": {
-                    "total_xp": profile.get("total_xp", 0),
-                    "current_level": profile.get("current_level", 1),
-                    "xp_current_level": xp_current,
-                    "xp_to_next_level": xp_needed,
-                    "level_progress_percent": level_progress
+                    "total_xp": total_xp,
+                    "current_level": current_level,
+                    "xp_current_level": xp_current_in_level,
+                    "xp_to_next_level": xp_to_next_level,
+                    "level_progress_percent": level_progress_percent
                 },
                 "plant": {
-                    "stage": profile.get("plant_stage", 1),
+                    "stage": current_plant_stage,
                     "type": profile.get("plant_type", "oak"),
-                    "stage_name": plant_stage_names.get(profile.get("plant_stage", 1), "Seed"),
+                    "stage_name": plant_stage_names.get(current_plant_stage, "Seed"),
                     "xp_to_next_stage": xp_to_next_plant_stage
                 },
                 "impact": {

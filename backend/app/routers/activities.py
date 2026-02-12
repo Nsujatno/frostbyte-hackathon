@@ -10,6 +10,9 @@ from app.config import get_settings
 import httpx
 import json
 
+
+from app.game_mechanics import calculate_level, get_level_threshold, get_plant_stage, calculate_xp
+
 settings = get_settings()
 
 router = APIRouter(
@@ -98,6 +101,8 @@ async def submit_freeform_activity(
         
         # Calculate XP
         xp_earned = calculate_xp(co2_saved, gemini_result["category"])
+        
+
         
         # Estimate money saved (optional, basic estimates)
         money_saved = estimate_money_saved(gemini_result["category"], co2_saved)
@@ -369,22 +374,7 @@ async def calculate_co2_with_climatiq(climatiq_estimate: Dict, user_id: str) -> 
     return max(co2_saved, 0.1)  # Minimum 0.1kg
 
 
-def calculate_xp(co2_saved_kg: float, category: str) -> int:
-    """
-    Calculate XP based on CO2 savings and category.
-    """
-    base_xp = 10
-    co2_xp = min(int(co2_saved_kg * 5), 40)
-    
-    category_bonuses = {
-        "transportation": 10,
-        "food": 5,
-        "energy": 5,
-        "shopping": 5
-    }
-    
-    total_xp = base_xp + co2_xp + category_bonuses.get(category, 0)
-    return min(total_xp, 50)  # Cap at 50
+
 
 
 def estimate_money_saved(category: str, co2_saved_kg: float) -> float:
@@ -482,10 +472,11 @@ async def update_user_stats(user_id: str, xp: int, co2: float, missions: int, mo
             "longest_streak_days": longest_streak,
         }
         
-        # Update plant stage if level increased
+        # Always update plant stage to ensure consistency with game mechanics
+        new_plant_stage = get_plant_stage(new_level)
+        update_data["plant_stage"] = new_plant_stage
+        
         if new_level > old_level:
-            new_plant_stage = get_plant_stage(new_level)
-            update_data["plant_stage"] = new_plant_stage
             print(f"🎉 Level up! {old_level} → {new_level}, Plant stage: {new_plant_stage}")
         
         print(f"Updating user stats: XP {old_total_xp} → {new_total_xp} (+{xp}), Level: {new_level}, CO2: +{co2}kg")
@@ -503,42 +494,7 @@ async def update_user_stats(user_id: str, xp: int, co2: float, missions: int, mo
         traceback.print_exc()
 
 
-def calculate_level(total_xp: int) -> int:
-    """Calculate level from total XP. Each level requires level * 100 XP."""
-    level = 1
-    xp_needed = 0
-    
-    while xp_needed <= total_xp:
-        level += 1
-        xp_needed += level * 100
-    
-    return level - 1
 
-
-def get_level_threshold(level: int) -> int:
-    """Get the XP threshold for a given level."""
-    total = 0
-    for i in range(2, level + 1):
-        total += i * 100
-    return total
-
-
-def get_plant_stage(level: int) -> int:
-    """Determine plant stage based on level."""
-    if level <= 2:
-        return 1
-    elif level <= 4:
-        return 2
-    elif level <= 7:
-        return 3
-    elif level <= 10:
-        return 4
-    elif level <= 15:
-        return 5
-    elif level <= 20:
-        return 6
-    else:
-        return 7
 
 
 def get_category_emoji(category: str) -> str:
