@@ -1,12 +1,14 @@
 
+XP_MULTIPLIER = 60
+
 def calculate_level(total_xp: int) -> int:
-    """Calculate level from total XP. Each level requires level * 100 XP."""
+    """Calculate level from total XP. Each level requires level * XP_MULTIPLIER XP."""
     level = 1
     xp_needed = 0
     
     while xp_needed <= total_xp:
         level += 1
-        xp_needed += level * 100
+        xp_needed += level * XP_MULTIPLIER
     
     return level - 1
 
@@ -15,7 +17,7 @@ def get_level_threshold(level: int) -> int:
     """Get the XP threshold for a given level."""
     total = 0
     for i in range(2, level + 1):
-        total += i * 100
+        total += i * XP_MULTIPLIER
     return total
 
 

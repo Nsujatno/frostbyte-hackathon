@@ -148,7 +148,6 @@ export default function ShoppingAssistantPage() {
       });
       if (response.ok) {
         const data = await response.json();
-        alert(`Shopping completed! +${data.xp_earned} XP earned!`);
         router.push('/dashboard');
       }
     } catch (error) { console.error('Error:', error); }
